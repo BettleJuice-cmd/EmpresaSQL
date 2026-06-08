@@ -6,37 +6,46 @@ DROP DATABASE EmpresaSQL;
 END
 GO
 
-
-
 CREATE DATABASE EmpresaSQL;
 Go
 
 USE EmpresaSQL;
 Go
 
-
-
 CREATE TABLE TDepartamentos (
-nDepartamentoID INT IDENTITY(1,1) NOT NULL,
+nDepartamentoID INT IDENTITY(1,1),
 cNombreDepartamento NVARCHAR(100) UNIQUE NOT NULL,
 CONSTRAINT PK_DepartamentoID PRIMARY KEY (nDepartamentoID),
 CONSTRAINT Uq_NombreDepartamento UNIQUE (cNombreDepartamento)
 );
 
 CREATE TABLE TCargo (
-nCargoID INT IDENTITY(1,1) NOT NULL,
+nCargoID INT IDENTITY(1,1),
 cNombreCargo NVARCHAR(100) UNIQUE NOT NULL,
 CONSTRAINT PK_nCargoID PRIMARY KEY (nCargoID),
 CONSTRAINT Uq_NombreCargo UNIQUE (cNombreCargo)
 );
 
 CREATE TABLE TEmpleado(
-nEmpleadoID INT IDENTITY(1,1) NOT NULL,
+nEmpleadoID INT IDENTITY(1,1),
 cNIF VARCHAR(12) UNIQUE NOT NULL,
 cNombre NVARCHAR(80) NOT NULL,
 cApellido NVARCHAR(80) NOT NULL,
 nDepartamentoID INT,
 nCargoID INT,
 dFechaContratacion DATETIME DEFAULT GETDATE(),
-nSalario DECIMAL (10,2)
+nSalario DECIMAL (10,2),
+CONSTRAINT PK_nEmpleadoID PRIMARY KEY (nEmpleadoID),
+CONSTRAINT Uq_cNIF UNIQUE (cNIF),
+CONSTRAINT FK_nDepartamentoID FOREIGN KEY (nDepartamentoID) REFERENCES TDepartamentos(nDepartamentoID),
+CONSTRAINT FK_nCargoID FOREIGN KEY (nCargoID) REFERENCES Tcargo(nCargoID),
+CONSTRAINT CK_nSalario CHECK (nSalario >= 300)
 );
+
+CREATE TABLE TProyecto (
+nProyectoID INT IDENTITY(1,1),
+cNombreProyecto NVARCHAR(120) UNIQUE NOT NULL,
+dFechaInicio DATETIME NOT NULL,
+dFechaFinalizacion DATETIME NOT NULL,
+
+
