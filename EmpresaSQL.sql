@@ -1,3 +1,5 @@
+--PARTE I
+
 IF DB_ID('EmpresaSQL') IS NOT NULL
 BEGIN
 ALTER DATABASE EmpresaSQL
@@ -47,5 +49,27 @@ nProyectoID INT IDENTITY(1,1),
 cNombreProyecto NVARCHAR(120) UNIQUE NOT NULL,
 dFechaInicio DATETIME NOT NULL,
 dFechaFinalizacion DATETIME NOT NULL,
+CONSTRAINT PK_nProyectoID PRIMARY KEY (nProyectoID)
+)
+
+CREATE TABLE TEmpleadoProyecto (
+nEmpleadoProyecto INT IDENTITY(1,1),
+nEmpleadoID INT,
+nProyectoID INT,
+CONSTRAINT PK_EmpleadoProyecto PRIMARY KEY (nEmpleadoProyecto),
+CONSTRAINT FK_nEmpleadoID FOREIGN KEY (nEmpleadoID) REFERENCES TEmpleado(nEmpleadoID),
+CONSTRAINT FK_nProyectoID FOREIGN KEY (nProyectoID) REFERENCES TProyecto(nProyectoID)
+);
+
+--PARTE II
+ALTER TABLE TEmpleado ADD cEmail NVARCHAR(26);
+ALTER TABLE TEmpleado ADD cTelefono VARCHAR(9);
+ALTER TABLE TEmpleado ALTER COLUMN cNombre NVARCHAR(100);
+ALTER TABLE TEmpleado  ALTER COLUMN cApellido NVARCHAR(100);
+ALTER TABLE TEmpleado ADD cDireccion NVARCHAR(MAX);
+ALTER TABLE TEmpleado ADD nEdad INT;
+ALTER TABLE TEmpleado ADD CONSTRAINT CK_Edad CHECK (nEdad >+
+
+
 
 
