@@ -141,7 +141,210 @@ DELETE FROM TProyecto WHERE nProyectoID = 2;
 DELETE FROM TEmpleadoProyecto WHERE nEmpleadoID = 2;
 DELETE FROM TDepartamentos WHERE nDepartamentoID = 8;
 
+--PARTE VI 
+SELECT * FROM TEmpleado ORDER BY cApellido ASC;
 
+SELECT * FROM TEmpleado WHERE nSalario > 1000;
+
+SELECT * FROM TEmpleado WHERE bActivo = 1;
+
+SELECT * FROM TEmpleado WHERE YEAR(dFechaContratacion) = YEAR(GETDATE());
+
+SELECT E.cNombre, E.cApellido, D.cNombreDepartamento FROM TEmpleado E
+INNER JOIN TDepartamentos D ON E.nDepartamentoID = D.nDepartamentoID;
+
+SELECT E.cNombre, E.cApellido, C.cNombreCargo FROM TEmpleado E
+INNER JOIN TCargo C ON E.nCargoID = C.nCargoID;
+
+SELECT E.cNombre, E.cApellido, P.cNombreProyecto FROM TEmpleado E
+INNER JOIN TEmpleadoProyecto EP ON E.nEmpleadoID = EP.nEmpleadoID
+INNER JOIN TProyecto P ON EP.nProyectoID = P.nProyectoID;
+
+SELECT D.cNombreDepartamento, COUNT(E.nEmpleadoID) AS CantidadEmpleados FROM TDepartamentos D
+LEFT JOIN TEmpleado E ON D.nDepartamentoID = E.nDepartamentoID GROUP BY D.cNombreDepartamento;
+
+SELECT D.cNombreDepartamento, AVG(E.nSalario) AS SalarioPromedio FROM TDepartamentos D
+INNER JOIN TEmpleado E ON D.nDepartamentoID = E.nDepartamentoID GROUP BY D.cNombreDepartamento;
+
+SELECT D.cNombreDepartamento, MAX(E.nSalario) AS SalarioMaximo, MIN(E.nSalario) AS SalarioMinimo
+FROM TDepartamentos D INNER JOIN TEmpleado E ON D.nDepartamentoID = E.nDepartamentoID
+GROUP BY D.cNombreDepartamento;
+
+SELECT P.cNombreProyecto, COUNT(EP.nEmpleadoID) AS TotalEmpleados FROM TProyecto P
+INNER JOIN TEmpleadoProyecto EP ON P.nProyectoID = EP.nProyectoID GROUP BY P.cNombreProyecto
+HAVING COUNT(EP.nEmpleadoID) > 2;
+
+SELECT * FROM TEmpleado WHERE cApellido LIKE 'G%';
+
+SELECT * FROM TEmpleado ORDER BY nSalario DESC;
+
+SELECT TOP 3 cNombre, cApellido, nSalario FROM TEmpleado ORDER BY nSalario DESC;
+
+SELECT * FROM TEmpleado WHERE nEdad BETWEEN 25 AND 40;
+
+SELECT COUNT(*) AS TotalEmpleadosActivos FROM TEmpleado WHERE bActivo = 1;
+
+SELECT COUNT(*) AS TotalProyectos FROM TProyecto;
+
+-- PARTE VII
+
+ALTER TABLE TEmpleado DROP CONSTRAINT CK_Edad;
+
+ALTER TABLE TEmpleado DROP CONSTRAINT UQ_cEmail;
+
+ALTER TABLE TEmpleado ADD CONSTRAINT CK_Edad CHECK (nEdad BETWEEN 18 AND 65);
+
+ALTER TABLE TEmpleado ADD CONSTRAINT UQ_cEmail UNIQUE (cEmail);
+
+DROP TABLE TEmpleadoProyecto;
+
+DROP TABLE TProyecto;
+
+DROP TABLE TEmpleado;
+
+DROP TABLE TCargo;
+
+DROP TABLE TDepartamentos;
+
+USE master;
+GO
+
+ALTER DATABASE EmpresaSQL SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+DROP DATABASE EmpresaSQL;
+GO
+
+-- Parte VIII. Desafíos Adicionales
+
+CREATE TABLE TCliente (
+    nClienteID INT IDENTITY(1,1),
+    cNIF VARCHAR(14) UNIQUE NOT NULL,
+    cNombre NVARCHAR(100) NOT NULL,
+    cApellido NVARCHAR(100) NOT NULL,
+    cEmail NVARCHAR(150) UNIQUE,
+    cTelefono VARCHAR(20),
+    cDireccion NVARCHAR(255),
+    dFechaRegistro DATETIME DEFAULT GETDATE(),
+    bActivo BIT DEFAULT 1,
+    CONSTRAINT PK_nClienteID PRIMARY KEY (nClienteID)
+);
+
+CREATE TABLE TMetodoPago (
+    nMetodoPagoID INT IDENTITY(1,1),
+    cNombreMetodo NVARCHAR(50) UNIQUE NOT NULL,
+    CONSTRAINT PK_nMetodoPagoID PRIMARY KEY (nMetodoPagoID)
+);
+
+INSERT INTO TMetodoPago (cNombreMetodo) 
+VALUES ('Efectivo'), ('Tarjeta de Crédito'), ('Transferencia Bancaria');
+
+CREATE TABLE TVenta (
+    nVentaID INT IDENTITY(1,1),
+    nClienteID INT NOT NULL,
+    nMetodoPagoID INT NOT NULL,
+    dFechaVenta DATETIME DEFAULT GETDATE(),
+    nMontoTotal DECIMAL(10,2) NOT NULL,
+    cEstado VARCHAR(20) DEFAULT 'Pagada',
+    CONSTRAINT PK_nVentaID PRIMARY KEY (nVentaID),
+    CONSTRAINT FK_TVenta_Cliente FOREIGN KEY (nClienteID) REFERENCES TCliente(nClienteID),
+    CONSTRAINT FK_TVenta_MetodoPago FOREIGN KEY (nMetodoPagoID) REFERENCES TMetodoPago(nMetodoPagoID),
+    CONSTRAINT CK_MontoVenta CHECK (nMontoTotal > 0),
+    CONSTRAINT CK_EstadoVenta CHECK (cEstado IN ('Pagada', 'Pendiente', 'Anulada'))
+);
+
+INSERT INTO TCliente (cNIF, cNombre, cApellido, cEmail, cTelefono, cDireccion)
+VALUES 
+('C001', 'Alejandro', 'Rivas', 'arivas@mail.com', '8888-0001', 'Managua'),
+('C002', 'Beatriz', 'Salgado', 'bsalgado@mail.com', '8888-0002', 'Masaya'),
+('C003', 'Carlos', 'Mendoza', 'cmendoza@mail.com', '8888-0003', 'Granada'),
+('C004', 'Diana', 'Castillo', 'dcastillo@mail.com', '8888-0004', 'León'),
+('C005', 'Eduardo', 'Blanco', 'eblanco@mail.com', '8888-0005', 'Estelí'),
+('C006', 'Fernanda', 'Rojas', 'frojas@mail.com', '8888-0006', 'Managua'),
+('C007', 'Gustavo', 'Pineda', 'gpineda@mail.com', '8888-0007', 'Rivas'),
+('C008', 'Hilda', 'Suárez', 'hsuarez@mail.com', '8888-0008', 'Jinotepe'),
+('C009', 'Ignacio', 'López', 'ilopez@mail.com', '8888-0009', 'Matagalpa'),
+('C010', 'Julia', 'Morales', 'jmorales@mail.com', '8888-0010', 'Managua'),
+('C011', 'Kevin', 'Duarte', 'kduarte@mail.com', '8888-0011', 'Masaya'),
+('C012', 'Lorena', 'Campos', 'lcampos@mail.com', '8888-0012', 'León'),
+('C013', 'Mario', 'Vega', 'mvega@mail.com', '8888-0013', 'Granada'),
+('C014', 'Nadia', 'Ortiz', 'nortiz@mail.com', '8888-0014', 'Estelí'),
+('C015', 'Oscar', 'Navarro', 'onavarro@mail.com', '8888-0015', 'Managua'),
+('C016', 'Patricia', 'Luna', 'pluna@mail.com', '8888-0016', 'Rivas'),
+('C017', 'Quintín', 'Soto', 'qsoto@mail.com', '8888-0017', 'Jinotepe'),
+('C018', 'Raquel', 'Guzmán', 'rguzman@mail.com', '8888-0018', 'Matagalpa'),
+('C019', 'Samuel', 'Herrera', 'sherrera@mail.com', '8888-0019', 'Managua'), 
+('C020', 'Teresa', 'Arias', 'tarias@mail.com', '8888-0020', 'Masaya');     
+
+INSERT INTO TVenta (nClienteID, nMetodoPagoID, dFechaVenta, nMontoTotal, cEstado)
+VALUES 
+(1, 1, '2024-01-10', 150.00, 'Pagada'), (2, 2, '2024-01-12', 300.50, 'Pagada'),
+(3, 3, '2024-01-15', 450.00, 'Pendiente'), (4, 1, '2024-01-20', 120.00, 'Pagada'),
+(5, 2, '2024-02-05', 800.00, 'Pagada'), (6, 3, '2024-02-10', 250.75, 'Pendiente'),
+(7, 1, '2024-02-14', 60.00, 'Pagada'), (8, 2, '2024-02-18', 950.00, 'Pagada'),
+(9, 3, '2024-03-01', 1100.00, 'Pendiente'), (10, 1, '2024-03-05', 45.00, 'Pagada'),
+(11, 2, '2024-03-12', 330.00, 'Pagada'), (12, 3, '2024-03-20', 410.25, 'Pagada'),
+(13, 1, '2024-04-02', 15.50, 'Pendiente'), (14, 2, '2024-04-08', 500.00, 'Pagada'),
+(15, 3, '2024-04-15', 750.00, 'Pagada'), (16, 1, '2024-04-22', 85.00, 'Pagada'),
+(17, 2, '2024-05-01', 1200.00, 'Pendiente'), (18, 3, '2024-05-10', 640.00, 'Pagada'),
+(1, 2, '2024-05-15', 200.00, 'Pagada'), (2, 3, '2024-05-20', 180.00, 'Pagada'),
+(3, 1, '2024-06-05', 90.00, 'Pagada'), (4, 2, '2024-06-11', 400.00, 'Pendiente'),
+(5, 3, '2024-06-18', 550.00, 'Pagada'), (6, 1, '2024-07-02', 75.00, 'Pagada'),
+(7, 2, '2024-07-09', 310.00, 'Pagada'), (8, 3, '2024-07-14', 1050.00, 'Pendiente'),
+(9, 1, '2024-07-22', 50.00, 'Pagada'), (10, 2, '2024-08-01', 600.00, 'Pagada'),
+(11, 3, '2024-08-08', 720.00, 'Pagada'), (12, 1, '2024-08-15', 130.00, 'Pagada'),
+(13, 2, '2024-08-25', 280.00, 'Pendiente'), (14, 3, '2024-09-03', 490.00, 'Pagada'),
+(15, 1, '2024-09-10', 65.00, 'Pagada'), (16, 2, '2024-09-18', 880.00, 'Pagada'),
+(17, 3, '2024-09-25', 1300.00, 'Pendiente'), (18, 1, '2024-10-02', 40.00, 'Pagada'),
+(1, 3, '2024-10-10', 500.00, 'Pagada'), (2, 1, '2024-10-15', 110.00, 'Pagada'),
+(3, 2, '2024-10-22', 270.00, 'Pagada'), (4, 3, '2024-11-05', 820.00, 'Pendiente'),
+(5, 1, '2024-11-12', 95.00, 'Pagada'), (6, 2, '2024-11-19', 340.00, 'Pagada'),
+(7, 3, '2024-11-26', 610.00, 'Pagada'), (8, 1, '2024-12-01', 80.00, 'Pagada'),
+(9, 2, '2024-12-08', 450.00, 'Pendiente'), (10, 3, '2024-12-15', 990.00, 'Pagada'),
+(11, 1, '2024-12-20', 105.00, 'Pagada'), (12, 2, '2024-12-24', 530.00, 'Pagada'),
+(13, 3, '2024-12-28', 770.00, 'Pendiente'), (14, 1, '2024-12-30', 25.00, 'Pagada');
+
+UPDATE TVenta SET nMontoTotal = nMontoTotal * 1.05 WHERE cEstado = 'Pendiente';
+
+DELETE FROM TCliente
+WHERE nClienteID NOT IN (SELECT DISTINCT nClienteID FROM TVenta);
+
+SELECT TOP 5 
+    C.cNombre, 
+    C.cApellido, 
+    SUM(V.nMontoTotal) AS TotalComprado
+FROM TCliente C
+INNER JOIN TVenta V ON C.nClienteID = V.nClienteID
+GROUP BY C.cNombre, C.cApellido
+ORDER BY TotalComprado DESC;
+
+SELECT 
+    YEAR(dFechaVenta) AS Anio, 
+    MONTH(dFechaVenta) AS Mes, 
+    COUNT(nVentaID) AS CantidadVentas,
+    SUM(nMontoTotal) AS IngresoTotal
+FROM TVenta
+GROUP BY YEAR(dFechaVenta), MONTH(dFechaVenta)
+ORDER BY Anio DESC, Mes DESC;
+
+SELECT 
+    C.cNombre, 
+    C.cApellido, 
+    AVG(V.nMontoTotal) AS PromedioGastoPorVenta
+FROM TCliente C
+INNER JOIN TVenta V ON C.nClienteID = V.nClienteID
+GROUP BY C.cNombre, C.cApellido
+ORDER BY PromedioGastoPorVenta DESC;
+
+SELECT 
+    V.nVentaID,
+    C.cNombre + ' ' + C.cApellido AS NombreCliente,
+    V.dFechaVenta,
+    V.nMontoTotal,
+    MP.cNombreMetodo AS MetodoDePago,
+    V.cEstado
+FROM TVenta V
+INNER JOIN TCliente C ON V.nClienteID = C.nClienteID
+INNER JOIN TMetodoPago MP ON V.nMetodoPagoID = MP.nMetodoPagoID
+ORDER BY V.dFechaVenta DESC;
 
 
 
