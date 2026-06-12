@@ -60,6 +60,22 @@ CONSTRAINT FK_nEmpleadoID FOREIGN KEY (nEmpleadoID) REFERENCES TEmpleado(nEmplea
 CONSTRAINT FK_nProyectoID FOREIGN KEY (nProyectoID) REFERENCES TProyecto(nProyectoID)
 );
 
+CREATE TABLE TProducto (
+    nProductoID     INT IDENTITY(1,1),
+    cCodigoProducto VARCHAR(20)      UNIQUE NOT NULL,
+    cNombreProducto NVARCHAR(150)    NOT NULL,
+    cDescripcion    NVARCHAR(MAX),
+    cCategoria      NVARCHAR(80)     NOT NULL,
+    nPrecioUnitario DECIMAL(10,2)    NOT NULL,
+    nStock          INT              NOT NULL DEFAULT 0,
+    bActivo         BIT              NOT NULL DEFAULT 1,
+    dFechaRegistro  DATETIME                  DEFAULT GETDATE(),
+    CONSTRAINT PK_nProductoID      PRIMARY KEY (nProductoID),
+    CONSTRAINT UQ_cCodigoProducto  UNIQUE      (cCodigoProducto),
+    CONSTRAINT CK_nPrecioUnitario  CHECK       (nPrecioUnitario > 0),
+    CONSTRAINT CK_nStock           CHECK       (nStock >= 0)
+);
+
 --PARTE II
 ALTER TABLE TEmpleado ADD cEmail NVARCHAR(26);
 ALTER TABLE TEmpleado ADD cTelefono VARCHAR(9);
@@ -123,6 +139,33 @@ VALUES
 
     INSERT INTO TEmpleado (cNIF, cNombre, cApellido, nDepartamentoID, nCargoID, dFechaContratacion, nSalario, cEmail, cTelefono, nEdad, bActivo, cGenero, dFechaNacimiento, TSucursal)
 VALUES ('014-141499-4', 'Lucía', 'Méndez', 1, 3, '2023-09-01', -150.00, 'lmendez@empresa.com', '8888-7788', 25, 1, 'F', '1999-02-20', 'Managua');
+
+INSERT INTO TProducto (cCodigoProducto, cNombreProducto, cDescripcion, cCategoria, nPrecioUnitario, nStock)
+VALUES
+-- Electrónica
+('ELEC-001', 'Laptop HP 15"',            'Laptop Intel Core i5, 8GB RAM, 512GB SSD',      'Electrónica', 850.00,  25),
+('ELEC-002', 'Monitor Samsung 24"',       'Monitor Full HD IPS, 75Hz, panel plano',         'Electrónica', 220.00,  40),
+('ELEC-003', 'Teclado Mecánico Logitech', 'Teclado RGB, switches táctiles, USB',            'Electrónica',  75.00,  60),
+('ELEC-004', 'Mouse Inalámbrico',         'Mouse ergonómico, 2.4GHz, batería AAA',          'Electrónica',  30.00,  80),
+('ELEC-005', 'Auriculares Sony WH-1000',  'Auriculares over-ear, cancelación de ruido',     'Electrónica', 120.00,  35),
+-- Oficina
+('OFIC-001', 'Silla Ejecutiva Ergonómica','Silla reclinable, soporte lumbar ajustable',     'Oficina',     180.00,  15),
+('OFIC-002', 'Escritorio de Madera',      'Escritorio 1.5m x 0.6m, color café oscuro',     'Oficina',     250.00,   8),
+('OFIC-003', 'Archivero Metálico 4 Gav.', 'Archivero de acero, llave de seguridad',         'Oficina',     160.00,  12),
+('OFIC-004', 'Pizarrón Blanco 1.2m',     'Pizarrón magnético con marco de aluminio',       'Oficina',      55.00,  20),
+('OFIC-005', 'Proyector Epson S41+',      'Proyector 3300 lúmenes, resolución SVGA',        'Oficina',     400.00,   6),
+-- Papelería
+('PAPE-001', 'Resma de Papel A4 500 hj.', 'Papel bond 75g/m², blancura 92%, 500 hojas',    'Papelería',     8.50, 200),
+('PAPE-002', 'Bolígrafos Azules x12',     'Caja de 12 bolígrafos punta fina',               'Papelería',     3.20, 500),
+('PAPE-003', 'Folder Manila x25',         'Paquete de 25 folders tamaño carta',             'Papelería',     4.75, 350),
+('PAPE-004', 'Cuaderno Universitario',    'Cuaderno 100 páginas, rayado, tapa dura',        'Papelería',     2.80, 400),
+('PAPE-005', 'Cinta Adhesiva x6',         'Pack de 6 rollos cinta transparente 18mm',       'Papelería',     5.50, 300),
+-- Software / Licencias
+('SOFT-001', 'Licencia Microsoft Office', 'Office 365 Personal, suscripción anual',         'Software',     99.00,  50),
+('SOFT-002', 'Antivirus ESET NOD32',      'Licencia 1 PC, 1 año de protección',             'Software',     45.00,  75),
+('SOFT-003', 'Adobe Acrobat Pro',         'Licencia anual, edición y firma de PDFs',        'Software',    180.00,  30),
+('SOFT-004', 'Licencia Windows 11 Pro',   'Licencia permanente, clave digital',             'Software',    140.00,  40),
+('SOFT-005', 'AutoCAD LT 2024',           'Licencia anual CAD 2D para diseño técnico',      'Software',    420.00,  10);
 
 --PARTE IV
 UPDATE TEmpleado SET nSalario = nSalario * 1.10;
